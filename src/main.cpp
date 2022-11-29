@@ -1,5 +1,8 @@
 #include <iostream>
 #include  <sstream>
+#include <set>
+#include <vector>
+
 
 // Inspired by pseudo code in wikipedia article (https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
 /*
@@ -129,7 +132,87 @@ namespace youtube_a1Z1GmKzcPs {
   }
 }
 
+namespace s4xack_dijkstra_cpp {
+    // From https://github.com/gshovkoplyas/ITMO/blob/master/Discrete%20Math/GRAPH/PATH/pathmgep/pathmgep.in
+    char const* szPathMGep = R"(3 1 2
+0 -1 2
+3 0 -1
+-1 4 0)";
+
+    // from https://gist.github.com/s4xack/ebcfdbcc3fd5678adcd81f151db07e30
+
+  using namespace std;
+
+  typedef long long int64;
+  const int64 inf = 1e12 + 7;
+
+  struct Edge
+  {
+    int to;
+    int64 weight;
+    Edge(int to, int64 weight) : to(to), weight(weight) {}
+    Edge() {}
+
+    bool operator< (const Edge& other) const
+    {
+      return this->weight < other.weight;
+    }
+  };
+
+  typedef vector<vector<Edge>> edgesLists;
+
+
+  int64 Dijkstra(int s, int f, const edgesLists& graph)
+  {
+    int n = graph.size();
+    vector<int64> distances = vector<int64>(n, inf);
+    set<Edge> dijkstraQueue;
+
+    distances[s] = 0;
+    dijkstraQueue.insert(Edge(s, 0));
+
+    while(!dijkstraQueue.empty())
+    {
+      Edge cur = *dijkstraQueue.begin();
+      dijkstraQueue.erase(dijkstraQueue.begin());
+
+      for (auto edge : graph[cur.to])
+        if (distances[edge.to] > cur.weight + edge.weight)
+        {
+          dijkstraQueue.erase(Edge(edge.to, distances[edge.to]));
+          dijkstraQueue.insert(Edge(edge.to, cur.weight + edge.weight));
+          distances[edge.to] = cur.weight + edge.weight;
+        }
+    }
+    return distances[f] == inf ? -1 : distances[f];
+  }
+
+  int main()
+  {
+    std::istringstream in(szPathMGep);
+    int n, s, f;
+    in >> n >> s >> f;
+    s--;
+    f--;
+    
+    edgesLists graph = edgesLists(n);
+    int64 weight;
+    for (int from = 0; from < n; ++from)
+    {
+      for (int to = 0; to < n; ++to)
+      {
+        in >> weight;
+        if (weight != -1 && to != from)
+          graph[from].emplace_back(to, weight);
+      }
+    }
+    std::cout << Dijkstra(s, f, graph) << "\n";
+    return 0;    
+  }
+}
+
 int main(int argc, char *argv[]) {
-  youtube_a1Z1GmKzcPs::main();
+  // youtube_a1Z1GmKzcPs::main();
+  s4xack_dijkstra_cpp::main();
   return 0;
 }              
